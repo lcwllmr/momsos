@@ -429,9 +429,9 @@ wheels = [
 ]
 
 [[package]]
-name = "momsos-notes"
-version = "1"
-source = { virtual = "." }
+name = "momsos"
+version = "2026.1.28"
+source = { editable = "." }
 dependencies = [
     { name = "cvxpy" },
     { name = "matplotlib" },

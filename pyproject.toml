@@ -1,9 +1,25 @@
 [project]
-name = "momsos-notes"
-version = "1"
+name = "momsos"
+version = "2026.01.28"
+authors = [
+    { name = "Luca Wellmeier", email = "luca.wellmeier@uit.no" }
+]
 requires-python = ">=3.12"
 dependencies = [
     "cvxpy>=1.7.5",
     "matplotlib>=3.10.8",
     "numpy>=2.4.1",
 ]
+
+[project.scripts]
+motzkin-surface = "momsos.experiments.motzkin_surface:main"
+motzkin-not-sos = "momsos.experiments.motzkin_not_sos:main"
+motzkin-minimize = "momsos.experiments.motzkin_minimize:main"
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "code"
+module-name = "momsos"
