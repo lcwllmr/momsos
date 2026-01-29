@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+# make sure the scripts are available in the environment
+uv sync
+
+# the scripts will put images into the cwd so cd to web first
+(cd web && uv run motzkin-surface --scimd)
+(cd web && uv run motzkin-minimize --scimd)
