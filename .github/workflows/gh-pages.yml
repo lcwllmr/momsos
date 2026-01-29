@@ -1,8 +1,8 @@
 name: gh-pages
 on:
-  workflow_dispatch:
-  # push:
-  #   branches: [main]
+  push:
+    paths:
+      - web/**
 permissions:
   contents: read
   pages: write
