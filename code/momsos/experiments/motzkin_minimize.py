@@ -4,16 +4,18 @@ from matplotlib.ticker import MaxNLocator
 from momsos.poly import PolynomialRing, Polynomial
 from momsos.helpers import build_plot_in_context
 
-def motzkin_lower_bound_on_ball(hierarchy_level, radius):
+def motzkin_lower_bound(hierarchy_level):
     # Maximize lam such that:
-    # p - lam = s0 + s1*(R2 - x^2 - y^2),
-    # with s0 SOS of deg<=2d and s1 SOS of deg<=2(d-1).
+    # p - lam = s0 + s1*(outer^2 - x^2 - y^2) + s2 * g1,
+    # where g1 defines K
+
+    radius = 0.2
+    center = [1, -1]
 
     p = Polynomial.motzkin()
     polyring = PolynomialRing(p.n)
     basis0 = polyring.monomials_upto(hierarchy_level)
     basis1 = polyring.monomials_upto(hierarchy_level - 1)
-
 
     # lhs = motzkin - lam
     lam = cp.Variable()
@@ -27,9 +29,9 @@ def motzkin_lower_bound_on_ball(hierarchy_level, radius):
 
     Q1 = cp.Variable((len(basis1), len(basis1)), PSD=True)
     p1 = Polynomial.from_gram_matrix(p.n, hierarchy_level - 1, Q1)
-    assert p1.degree <= 2 * (hierarchy_level - 1)
-    p1 = p1 * Polynomial.ball(p.n, radius)
-    assert p1.degree <= 2 * hierarchy_level
+    assert p1.degree == 2 * (hierarchy_level - 1)
+    p1 = p1 * Polynomial.ball(p.n, radius, center=center)
+    assert p1.degree == 2 * hierarchy_level
 
     rhs = p0 + p1
 
@@ -44,26 +46,24 @@ def motzkin_lower_bound_on_ball(hierarchy_level, radius):
     return sdp.status, lam.value
 
 def main():
-    radius = 2  # radius^2 = 2 includes the true minimizers (±1,±1); true min is 0
-    ts = list(range(2, 6 + 1))
+    ds = list(range(3, 7 + 1))
     lbs = []
 
-    for t in ts:
-        status, g = motzkin_lower_bound_on_ball(t, radius)
+    for d in ds:
+        status, g = motzkin_lower_bound(d)
         lbs.append(g)
-        print(f"t={t}: status={status}, lower_bound={g}")
+        print(f"t={d}: status={status}, lower_bound={g}")
 
     def plot(figure: plt.Figure):
         ax = figure.add_subplot(111)
-        ax.plot(ts, lbs, marker="o")
+        ax.plot(ds, lbs, marker="o")
         ax.axhline(0.0, linestyle="--", color='r', label="true minimum")
-        ax.set_xlabel("hierarchy level t")
-        ax.set_ylabel("lower bound $p^{\\text{sos}}_t$")
+        ax.set_xlabel("hierarchy level d")
+        ax.set_ylabel("lower bound $p^{\\text{sos}}_d$")
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         ax.grid(True, alpha=0.3)
-        ax.legend()
+        ax.legend(loc="lower right")
     build_plot_in_context("motzkin-minimize", (7.5, 4.5), plot)
-
 
 if __name__ == "__main__":
     main()

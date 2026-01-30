@@ -69,13 +69,25 @@ class Polynomial:
                 coeffs[mij] = coeffs.get(mij, 0) + Q[i,j]
         return Polynomial(coeffs)
 
-    def ball(n: int, radius: float):
-        coeffs = {tuple(n * [0]): radius}
-        for i in range(n):
-            m = n * [0]
-            m[i] = 2
-            coeffs[tuple(m)] = -1.0
-        return Polynomial(coeffs)
+    def ball(n: int, radius: float, center=None):
+        if center is None:
+            coeffs = {tuple(n * [0]): radius**2}
+            for i in range(n):
+                m = n * [0]
+                m[i] = 2
+                coeffs[tuple(m)] = -1.0
+            return Polynomial(coeffs)
+        else:
+            const = tuple(n*[0])
+            p = Polynomial({const: radius**2})
+            for i in range(n):
+                ei = n*[0]
+                ei[i] = 1
+                ei = tuple(ei)
+                pi = Polynomial({const: -center[i], ei: 1.0})
+                pi = pi * pi
+                p = p + pi
+            return p
 
     def motzkin():
         """
@@ -106,6 +118,9 @@ class Polynomial:
         for m, c in other.coefficients.items():
             coeffs[m] = coeffs.get(m, 0) + c
         return Polynomial(coeffs)
+
+    def __neg__(self):
+        return Polynomial({m: -v for m, v in self.coefficients.items()})
 
     def __mul__(self, other):
         """
