@@ -17,6 +17,8 @@ macros:
   '\set': '\left\{#1\;\colon\;#2\right\}'
   '\NN': '\mathcal{P}^+'
   '\SOS': '\Sigma'
+  '\pmin': 'p^{\text{min}}'
+  '\psos': 'p^{\text{sos}}'
 ---
 
 ## Non-negativity and sums of squares
@@ -223,9 +225,90 @@ In this section we will localize the non-negativity to sets described
 by polynomial inequalities and formulate a effective procedure for solving
 optimization problems over them.
 
+Let $g_1(x), \dots, g_m(x) \in \R[x]$ be arbitrary polynomials and let them define
+the basic semialgebraic set
+$$
+  K = \set{x \in \R^n}{g_1(x) \geq 0, \dots, g_m(x) \geq 0}.
+$$
+Such sets $K$ may take a wide variety of shapes. Here are just a few basic compact examples:
 
+- closed unit ball: $g_1(x) = 1 - \| x \|^2$
+- spherical shell: $g_1(x) = 2 - \| x \|^2$ and $g_2(x) = \| x \|^2 - 1$
+- hypercube: $g_i (x) = 1 - x_i^2$ for $i = 1, \dots, n$
+- simplex: $g_i(x) = x_i$ for $i = 1, \dots, n$ and $g_{n+1}(x) = 1 - \sum_{i=1}^n x_i$
+- binary hypercube: $g_i(x) = x_i (x_i - 1)$ and $g_{n + i}(x) = -g_i (x)$ for $i = 1, \dots, n$
 
-`TODO: still need to add this section from my handwritten notes`
-`TODO: find out Putinar year`
+Note that this last example illustrates how to achieve equality constaints as well: simply add the negative of the polynomial to the mix.
+We will assume throughout that $K$ is compact.
+
+Next, consider a polynomial objective function $p \in \R[x]$ and consider the polynomial optimization problem (or *pop* for short)
+$$ \pmin = \inf_{x \in K} p(x). $$
+
+Problems of this rather innocent looking form encode a large variety of problems appearing in practice:
+for starters, note that this already includes the whole classes of linear and quadratically constrained programming (themselves classes of broad application) as well as that of non-linear programming in binary variables which is of high interest to the field of combinatorial optimization.
+Research have applied the method we are going to discuss in domains like power systems design, dynamical systems analysis, quantum information theory and to find sharp approximations to many famous NP-hard problems like [MaxCut](https://en.wikipedia.org/wiki/Maximum_cut) or [StableSet](https://en.wikipedia.org/wiki/Maximal_independent_set).
+
+While *pops* are hard, non-convex problems in general, we can reformulate them into a convex problem (albeit an infinite dimensional one) by using the language of non-negativity.
+Define the new convex cone $\NN(K) = \set{p \in \R[x]}{p(x) \geq 0 \; \forall x \in K}$
+(exercise: verify that this is really a convex cone).
+With it, reformulate
+$$ \pmin = \sup \set{\lambda \in \R}{p - \lambda \in \NN(K)}. $$
+Indeed, let $x^* \in K$ be a minimizer in the first formulation (remember: $K$ was assumed to be compact) and $\lambda^*$ be the maximizer of the second formulation.
+Then, the polynomial $p - \lambda^*$ is non-negative on $K$.
+If $p(x^*) - \lambda^*$ were strictly positive on $K$, it would contradict the optimality of $\lambda^*$, and therefore $\pmin = p(x^*) = \lambda^*$.
+
+How lucky for us, that we already know very well how to relax non-negativity - let's go back to sums of squares.
+
+> **Definition**: The quadratic module associated to the polynomials $g_1, \dots, g_m$ is defined as
+> $$ Q(g_1, \dots, g_m) = \set{\sigma_0 + \sum_{j = 1}^{m} \sigma_j g_j }{\sigma_0, \sigma_1 \dots, \sigma_m \in \SOS}. $$
+> For a given degree $2d$ we also define the truncated quadratic module
+> $$ Q(g_1, \dots, g_m)_{2d} = \set{p \in Q(g_1, \dots, g_m)}{\deg(p) \leq 2d}. $$
+
+The purpose is clear: any $p \in Q(g_1, \dots, g_m)$ is non-negative on $K$ since $g_i(x) \geq 0$ on $K$ for all $i = 1, \dots, m$.
+Thus, similar to how $\SOS$ relaxes $\NN$, the new convex cone $Q(g_1, \dots, g_m)$ relaxes $\NN(K)$.
+
+Note that membership in the truncated quadratic module will only certify non-negativity on $K$ if all of the summands appear. The truncation degree $2d$ must be chosen to be greater or equal $\max(\deg(g_1), \dots, \deg(g_m))$.
+
+Moreover, observe that we declared explicit dependence on the defining inequalities instead of $K$ itself.
+Different descriptions may result in different quadratic modules, but we can only write down an effective certificate if we know a description.
+
+Now we are ready to define the sums-of-squares hierarchy:
+$$ \psos_d = \sup \set{\lambda \in \R}{p - \lambda \in Q(g_1, \dots, g_m)_{2d}}. $$
+These define a sequence of convex, finite-dimensional optimization problems.
+As we increase the hierarchy level $d$, the search space grows and we find ourselves in a chain of inequalities
+$$ \psos_1 \leq \psos_2 \leq \psos_3 \leq \dots \leq \pmin. $$
+
+The first immediate question is: will this converge? That is, will $\psos_d \to \pmin$ as $d \to \infty$? Lucky us again:
+
+> **Theorem (Putinar's Positivstellensatz, 1993)**:
+> Assume that $K$ is compact and the quadratic module $Q = Q(g_1, \dots, g_m)$ is Archimedean, i.e. if $R - \|x\|^2 \in Q$ for some $R > 0$.
+> If $p \in \NN(K)$, then $p + \varepsilon \in Q$ for all $\varepsilon > 0$.
+
+The word Positivstellensatz was chosen in analogy to the German Nullstellensatz in algebraic geometry.
+A modern, elementary proof of this theorem can be found in [(Schweighofer, 2005)](https://doi.org/10.1137/S1052623403431779).
+
+Let us first have a look at the Archimedean condition, which is a technical assumption only and closely related to the discussion above: the quadratic module depends on the description of the set and not the set itself.
+All it says is that you need to have such a ball constraint in the module for guaranteed convergence.
+Practically, this is not a deal-breaker.
+If you already know (maybe approximately) diameter and location of $K$, or if you have an a-priori bound on where the minimizers should be, it is enough to add this inequality without changing anything.
+
+So how does this help us?
+Think of $\varepsilon$ as the sharpness of the bound.
+For any desired sharpness, Putinar tells us that we will be able to decompose a polynomial $p - \lambda$ into the form required for membership in the quadratic module as long as we are willing to wiggle $\lambda$ by $\varepsilon$.
+Therefore, as we go up in hierarchy level, i.e. in truncation degree, we will be able to tighten our bounds, i.e. to let $\varepsilon \to 0$, because we gradually enlarge the search space.
+This proves asymptotic convergence of the *sos* hierarchy.
+
+Since we did not really live the framework of the last section, we are again able to use semidefinite programming to solve such optimization problems.
+Let's take again the Motzkin polynomial $M(x,y)$ from the previous section and try to minimize it on a non-centered ball.
+In other words, we attempt to solve the problem
+of maximizing a scalar $\lambda$ such that the linear coefficient matching system 
+$$M(x,y) + \lambda = \sigma_0 + \sigma_1 (r^2 - (x - x_0)^2 - (y - y_0)^2)$$
+is satisfied and such that the the two polynomials $\sigma_0$ and $\sigma_1$ are *sos*, i.e. can be described by two *psd* matrix variables.
+Before, we were dealing only with feasibility and now we also need to optimize a linear function at the same time.
+Also, note that the first hierarchy level that makes sense here is $d=3$ - anything below and the coefficient matching system would be over-determined.
+This problem is implemented in the experiment [`motzkin_minimize.py`](https://github.com/lcwllmr/momsos/blob/main/code/momsos/experiments/motzkin_minimize.py); check out the code to see how to hand these data to a solver.
+Here is the result:
 
 ![](./motzkin-minimize.light.png) ![](./motzkin-minimize.dark.png)
+
+Note that this is converging to the minimum (or rather to numerical precision) very fast even though the Archimedean condition is not satisfied.
