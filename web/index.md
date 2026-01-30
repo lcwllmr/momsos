@@ -6,7 +6,7 @@ toc: true
 abstract: |
   These notes are mostly based on the great survey article [(Laurent, 2010)](https://homepages.cwi.nl/~monique/files/moment-ima-update-new.pdf).
   This text and the code used to perform the experiments are hosted at [`gh:lcwllmr/momsos`](https://github.com/lcwllmr/momsos).
-  Read the instructions on GitHub if you would like experiment with the code.
+  Read the instructions on GitHub if you would like to experiment with the code on your own.
 macros:
   '\R': '\mathbb{R}'
   '\deg': '\operatorname{deg}'
@@ -107,7 +107,7 @@ the density of $\SOS$ in $\NN$ is vanishingly small in many variables or high de
 Nonetheless, *sos*-based methods have proven very practical for a wide variety of applications.
 The next section will justify this claim.
 
-## Computational advantages
+## Automated proofs
 
 Even though Hilbert proved that the equality $\NN = \SOS$ holds only in some special cases,
 the first explicit counterexample was considered much later by Motzkin in 1967:
@@ -171,8 +171,8 @@ Starting test: Is (x^2 + y^2) * M(x,y) a sum of squares?  ...  Computation finis
 ```
 
 This tells us that the the decomposition failed and that the Motzkin polynomial is not *sos*.
-Some implementation of the so-called [interior point method](https://en.wikipedia.org/wiki/Interior-point_method) will also return a "dual infeasibility certificate":
-To understand them we would need to study the dual cone of $\SOS$.
+Some implementations of the so-called [interior point method](https://en.wikipedia.org/wiki/Interior-point_method) will also return a "dual infeasibility certificate":
+To understand what that means exactly we need to study the conic dual of $\SOS$.
 For now it is enough to think about such certificates as
 a concrete hyperplane in some closely related cone that separates the compact feasible region
 from the point of interest. More on this later.
@@ -181,7 +181,7 @@ So Motzkin is now verfiably not *sos*.
 However, according to the second test that is performed in the experiment,
 it turns out that the product of Motzkin with some other *sos* polynomial
 results in something *sos*.
-That this works is not just a coincidence.
+This is not just a coincidence.
 Hilbert's result from the last section motivated a new question (which became Problem 17):
 Is every non-negative polynomial a sum of squares of rational functions?
 This has been answered positively by [(Artin, 1927)](https://doi.org/10.1007%2FBF02952513).
@@ -197,19 +197,18 @@ Let's rephrase this:
 Any polynomial inequality can - in principle - be automatically proven or disproven
 by means of semidefinite programming.
 If it is true, then the *sdp* solver will provide a proof in the shape of a Gram matrix,
-which is equivalent to an explicit *sos* decomposition.
-Having an *sos* decomposition proves non-negativity.
+which is equivalent to an explicit *sos* decomposition, which in turn, proves non-negativity.
 On the other hand, if the inequality is false, then the solver may return an infeasibility
 certificate as we have seen before.
 
 As powerful as this sounds, there are two important caveats.
 For one, it is always important to be aware of possible issues with accuracy since
 interior point methods are implemented using numerical linear algebra routines.
-Moreover, the dimensions of such *sdp* explode very quickly if constructed naively.
+Moreover, the dimensions of such *sdps* explode very quickly if constructed naively.
 The monomial vector $v_{n,d}(x)$, for instance, will have length $\binom{n + d}{n}$,
 and an interior point solver itself will have rather high runtime costs being a
 second-order method working on large matrices.
-By now the research communities have found various tricks to circumvent cost
+The research communities around these methods have found various tricks to circumvent cost
 or trade it off with accuracy
 (e.g. by exploiting more structure of problem instances or using more specialized solvers).
 
