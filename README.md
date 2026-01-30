@@ -25,4 +25,4 @@ pip install -e .
 python code/momsos/experiments/motzkin_minimize.py
 ```
 
-Either way, it's best to start by inspecting the experiments in `[code/momsos/experiments](https://github.com/lcwllmr/momsos/tree/main/code/momsos/experiments)` and go from there.
+Either way, it's best to start by inspecting the experiments in [`code/momsos/experiments`](https://github.com/lcwllmr/momsos/tree/main/code/momsos/experiments) and go from there.
