@@ -4,20 +4,25 @@ This repository contains the source code for both notes and experiments used in 
 You can view the rendered notes online at <https://lcwllmr.github.io/momsos/>.
 In order to reproduce the experiments or play around with them, follow these instructions to set up the development environment.
 
-```bash
-git clone https://github.com/lcwllmr/momsos.git
-cd momsos
+First, clone this repository somewhere and open a terminal in the directory:
+`git clone https://github.com/lcwllmr/momsos.git && cd momsos`.
 
-# first option: make sure Python >= 3.12 is installed
+The easiest way to run the experiments is using the great Python packaging tool [uv](https://docs.astral.sh/uv).
+Follow install instructions on the webpage and then simply run
+
+```bash
+uv sync
+uv run code/momsos/experiments/motzkin_minimize.py
+```
+
+Alternatively, if Python version at least 3.12 is installed on your system, run the following inside the repository
+
+```bash
 python -m venv .venv
 source .venv/bin/activate # if on linux with bash
 .venv\Scripts\Activate.ps1 # if on windows with powershell
 pip install -e .
 python code/momsos/experiments/motzkin_minimize.py
-
-# second option: install [uv](https://docs.astral.sh/uv)
-uv sync
-uv run code/momsos/experiments/motzkin_minimize.py
 ```
 
-It's best to start by inspecting the experiments in `[code/momsos/experiments](https://github.com/lcwllmr/momsos/tree/main/code/momsos/experiments)` and go from there.
+Either way, it's best to start by inspecting the experiments in `[code/momsos/experiments](https://github.com/lcwllmr/momsos/tree/main/code/momsos/experiments)` and go from there.
