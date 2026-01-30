@@ -7,6 +7,10 @@ abstract: |
   These notes are mostly based on the great survey article [(Laurent, 2010)](https://homepages.cwi.nl/~monique/files/moment-ima-update-new.pdf).
   This text and the code used to perform the experiments are hosted at [`gh:lcwllmr/momsos`](https://github.com/lcwllmr/momsos).
   Read the instructions on GitHub if you would like to experiment with the code on your own.
+  These notes have been used for the following talks:
+
+  - Jan 28, 2026 at IIT Bombay (17:15 in Ramanujan Hall) covering sections 1, 2 and 3
+  - Feb 5, 2026 at IIT Bombay (??? in ???) covering sections 4 and 5
 macros:
   '\R': '\mathbb{R}'
   '\deg': '\operatorname{deg}'
