@@ -1,6 +1,17 @@
 #! /usr/bin/env bash
 
+action="$1"
 
-npx -y github:lcwllmr/scimd watch web/index.md > /dev/null 2>&1 &
-xdg-open http://127.0.0.1:3000
-
+case "$action" in
+  up)
+    npx -y github:lcwllmr/scimd watch web/index.md > /dev/null 2>&1 &
+    xdg-open http://127.0.0.1:3000
+    ;;
+  down)
+    pkill -f "github:lcwllmr/scimd watch web/index.md" || \
+      echo "no running preview process found"
+    ;;
+  *)
+    echo "Usage: $0 {up|down}"
+    ;;
+esac
