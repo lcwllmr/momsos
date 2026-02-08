@@ -10,7 +10,7 @@ abstract: |
   These notes have been used for the following talks:
 
   - Jan 28, 2026 at IIT Bombay (17:15 in Ramanujan Hall) covering sections 1, 2 and 3
-  - Feb 5, 2026 at IIT Bombay (??? in ???) covering sections 4 and 5
+  - Feb 4, 2026 at IIT Bombay (17:15 in Ramanujan Hall) covering sections 4 and 5
 macros:
   '\R': '\mathbb{R}'
   '\deg': '\operatorname{deg}'
@@ -19,6 +19,9 @@ macros:
   '\SOS': '\Sigma'
   '\pmin': 'p^{\text{min}}'
   '\psos': 'p^{\text{sos}}'
+  '\MOM': '\mathcal{M}'
+  '\PMOM': '\overline{\mathcal{M}}'
+  '\pmom': 'p^{\text{mom}}'
 ---
 
 ## Non-negativity and sums of squares
@@ -246,7 +249,7 @@ $$ \pmin = \inf_{x \in K} p(x). $$
 
 Problems of this rather innocent looking form encode a large variety of problems appearing in practice:
 for starters, note that this already includes the whole classes of linear and quadratically constrained programming (themselves classes of broad application) as well as that of non-linear programming in binary variables which is of high interest to the field of combinatorial optimization.
-Research have applied the method we are going to discuss in domains like power systems design, dynamical systems analysis, quantum information theory and to find sharp approximations to many famous NP-hard problems like [MaxCut](https://en.wikipedia.org/wiki/Maximum_cut) or [StableSet](https://en.wikipedia.org/wiki/Maximal_independent_set).
+Researchers have applied the method we are going to discuss in domains like power systems design, dynamical systems analysis, quantum information theory and to find sharp approximations to many famous NP-hard problems like [MaxCut](https://en.wikipedia.org/wiki/Maximum_cut) or [StableSet](https://en.wikipedia.org/wiki/Maximal_independent_set).
 
 While *pops* are hard, non-convex problems in general, we can reformulate them into a convex problem (albeit an infinite dimensional one) by using the language of non-negativity.
 Define the new convex cone $\NN(K) = \set{p \in \R[x]}{p(x) \geq 0 \; \forall x \in K}$
@@ -312,3 +315,105 @@ Here is the result:
 ![](./motzkin-minimize.light.png) ![](./motzkin-minimize.dark.png)
 
 Note that this is converging to the minimum (or rather to numerical precision) very fast even though the Archimedean condition is not satisfied.
+
+## Duality
+
+As so often in mathematics, taking a closer look at the dual of a given problem/concept/space/... can be very fruitful.
+In this section we are going to examine exactly the same problem, i.e.
+the polynomial optimization problem
+$$\pmin = \inf_{x \in K} p(x)$$
+for the compact semialgebraic set $K = \{g_1 \geq 0, \dots, g_m \geq 0\}$ but we choose a different road to arrive at the hierarchies of lower bounds.
+This will lead us naturally to the dual theory of moments.
+
+Consider the following reformulation:
+Let us denote by $\operatorname{Prop}(K)$ the convex (!) set of all probability measures supported on $K$ (all mass lies inside $K$ or equivalently the measure of $X \setminus K$ is zero for any $X \subseteq \R^n$).
+Then,
+$$\pmin = \inf_{\mu \in \operatorname{Prob}(K)} \int p(x) \, d\mu(x).$$
+At first glance, this might seem a bit strange but let us quickly verify that this is in fact true:
+
+- "$\leq$": By definition $\pmin \leq p(x)$ for any $x$. Thus, if $\mu \in \operatorname{Prop}(K)$ we have $\pmin = \int \pmin \, d\mu(x) \leq \int p(x) \, d\mu(x). $
+- "$\geq$": Let $x_0 \in K$ and denote by $\delta_{x_0}$ the Dirac delta at that point (mass 1 on any set that contains it and 0 otherwise). Then, $p(x_0) = \int p(x) \, d\delta_{x_0}$ meaning that the integral may assume any value that $p$ can, so is at most $\pmin$.
+
+The language that we are going to use for these two last sections will be introduced now for yet another reformulation of this integral expression.
+
+> **Definition**:
+> The **moment cone** $\MOM$ is the set of all linear functionals $L \colon \R[x] \to \R$ on the polynomial ring for which there is a measure $\mu$ such that
+> $$L(p) = \int p(x) \, d\mu(x).$$
+> Similarly, for a set $K \subseteq \R^n$ we define the **localized moment cone** $\MOM(K)$ as the set of all linear functions on $\R[x]$ that are integration w.r.t. a measure supported on $K$.
+
+Note that we did not require these measures to be probability measures.
+The reason is that $\MOM$ would fail to be a cone if we did (verify this for yourself!).
+That said, if $L$ is such a functional then requiring it to be integration w.r.t. to some probability measure is as simple as enforcing $L(1) = 1$.
+
+In this notation, we may write
+$$\pmin = \inf\set{L(p)}{L \in \MOM(K), L(1) = 1}.$$
+
+We present now the key theorem that establishes duality.
+Let us denote the dual of a vector space $V$ by $V^*$.
+If $C \subseteq V$ is any cone inside $V$ then we define the **dual cone** as $C^* = \set{L \in V^*}{L(c) \geq 0\;\forall c \in C}$.
+
+> **Theorem (Haviland, 1936)**:
+> If $K \subset \R^n$ is a closed subset, then the moment is the dual of the cone of non-negative polynomials, i.e.
+> $$\MOM(K) = \left(\NN(K)\right)^* = \set{L \in \R[x]^*}{L(p) \geq 0\;\forall p \in \NN(K)}.$$
+
+Functionals that preserve positivity like this one are sometimes called *positive functionals*.
+One direction is quite simple: if $L$ is integration w.r.t. to some measure, then one verifies immediately that non-negative polynomials map to non-negative values.
+The other direction is a bit more involved; here is the outline:
+First, extend to positive functionals on the space of smooth functions that grow at most polynomially.
+There, apply the measure-theoretic variant of Riesz' representation theorem for the space of compactly supported functions (as presented for instance in [(Folland, 1999)](https://www.wiley.com/en-us/Real+Analysis%3A+Modern+Techniques+and+Their+Applications%2C+2nd+Edition-p-9781118626399)) to assert the existence of a measure.
+Lastly, show that the representation still holds for smooth polynomially growing functions - in particular for polynomials themselves.
+The detailed proof can be found in Section 4.6 of [(Laurent, 2010)](https://homepages.cwi.nl/~monique/files/moment-ima-update-new.pdf).
+Note also that the assumption is that $K$ is merely closed.
+For our purposes it would be enough to show the theorem in the compact case.
+
+Now, that we have established duality with the cone of non-negative polynomials, we also realize that testing membership is at least as hard as for $\NN$.
+We will therefore introduce a relaxation as the dual to the sums of squares cone and quadratic modules:
+
+> **Definition**:
+> The **pseudo-moment cone** $\PMOM$ is defined as the conic dual to $\SOS$, i.e.
+> $$\PMOM = \SOS^* = \set{L \in \R[x]^*}{L(\sigma) \geq 0 \; \forall \sigma \in \SOS}.$$
+> Analogously, for polynomials $g_1, \dots, g_n \in \R[x]$ defining a basic semialgebraic set $K = \{g_1 \geq 0, \dots, g_m \geq 0\}$ we define the **localized pseudo-moment cone** as
+> $$\PMOM(g_1, \dots, g_m) = Q(g_1, \dots, g_m)^* = \set{L \in \R[x]^*}{L(q) \geq 0 \; \forall q \in Q(g_1, \dots, g_m)}.$$
+
+The prefix "pseudo" is justified:
+while the *sos* cone $\SOS \subset \NN$ was an inner approximation, we are now in the situation of an outer approximation $\PMOM \supset \MOM$, i.e. not all pseudo-moments come from a measure.
+Indeed, being positive on all *sos* polynomials is a more inclusive condition than being non-negative.
+Moreover, as we will detail in the next section, membership is again tractable in the sense of semidefinite programming.
+
+As before, we now have all the ingredients together to define the dual lower bound on $\pmin$:
+$$\pmom = \inf\set{L(p))}{L \in \PMOM(g_1, \dots, g_m), L(1) = 1} \leq \pmin.$$
+This is a lower bound simply because we enlarge the feasible set.
+
+> **Warning**:
+> Both the inner approximation in the *sos* case and the outer approximation in the moment case led to lower bounds.
+> Keep in mind that the former used a little trick which transformed the problem into maximization, while the moment side stayed a minimization problem.
+> For this reason, the *sos* side is usually referred to in the literature as the dual and the moment side as the primal - this is somewhat opposite to the flow of this introduction to the Moment-SOS hierarchy.
+> Have a look at one of the original expositions in $[(Lasserre, 2001)](https://doi.org/10.1137/S1052623400366802)$ to verify this yourself.
+
+We may also introduce the respective truncated (pseudo-)moment cones $\MOM_{2d}$, $\PMOM_{2d}$, $\MOM(K)_{2d}$ and $\PMOM(g_1, \dots, g_m)_{2d}$ in the expected way:
+Instead of considering functionals on the whole polynomial ring, we only look at $\R[x]_{2d}$.
+This leads then to the (completely analogous) hierarchy of finite-dimensional convex optimization problems
+$$\pmom_{d} = \inf\set{L(p))}{L \in \PMOM(g_1, \dots, g_m)_{2d}, L(1) = 1}$$
+with the chain of inequalities $\pmom_{d} \leq \pmom_{d + 1} \leq \dots \leq \pmom \leq \pmin$.
+It should not come as a surprise now that both bounds $\psos_{2d}$ and $\pmom_{2d}$ are tightly linked:
+
+> **Proposition (Weak duality)**: For $d$ large enough (for the optimization problem to be well-defined) we have $\psos_d \leq \pmom_d$ and $\psos \leq \pmom$.
+
+**Proof**:
+Let $\lambda$ be a feasible solution for the optimization problem $\psos$:
+there exists some $q \in Q(g_1, \dots, g_m)$ such that $p - \lambda = q$.
+If $L$ is any feasible solution for the optimization problem $\pmom$ (i.e. $L$ is non-negative on the quadratic module generated by $g_1, \dots, g_m$), then in particular
+$$L(p) - \lambda = L(p) - \lambda L(1) = L(p - \lambda) = L(q) \geq 0.$$
+Thus, $\lambda \leq L(p)$.
+Because the feasible solutions from both problems were arbitrary, the inequality holds for the optima due to closedness. $\square$
+
+Under certain conditions, often encountered in practice, the two problems are also *strongly* dual (i.e. $\psos = \pmom$).
+One such sufficient condition is that the semialgebraic set $K \subseteq \R^n$ has non-empty interior (see Theorem 6.1 in  [(Laurent, 2010)](https://homepages.cwi.nl/~monique/files/moment-ima-update-new.pdf)).
+
+The weak duality result has a strong consequence:
+Recall that Putinar's Positivstellensatz established that $\pmin = \psos$ in case of compact $K$ with Archimedean description.
+Since $\pmin = \psos \leq \pmom \leq \pmin$, it also shows asymptotic convergence of the moment hierarchy in that case.
+
+## Moment matrices and optimizers
+
+
