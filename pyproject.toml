@@ -8,6 +8,7 @@ requires-python = ">=3.12"
 dependencies = [
     "cvxpy>=1.7.5",
     "matplotlib>=3.10.8",
+    "mosek>=11.1.5",
     "numpy>=2.4.1",
 ]
 
@@ -15,6 +16,7 @@ dependencies = [
 motzkin-surface = "momsos.experiments.motzkin_surface:main"
 motzkin-not-sos = "momsos.experiments.motzkin_not_sos:main"
 motzkin-minimize = "momsos.experiments.motzkin_minimize:main"
+motzkin-moment = "momsos.experiments.motzkin_moment:main"
 
 [build-system]
 requires = ["uv_build>=0.9.26,<0.10.0"]

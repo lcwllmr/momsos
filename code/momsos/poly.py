@@ -69,6 +69,9 @@ class Polynomial:
                 coeffs[mij] = coeffs.get(mij, 0) + Q[i,j]
         return Polynomial(coeffs)
 
+    def constant(n: int, value: float = 1):
+        return Polynomial({tuple(n * [0]): value})
+
     def ball(n: int, radius: float, center=None):
         if center is None:
             coeffs = {tuple(n * [0]): radius**2}
