@@ -22,6 +22,7 @@ macros:
   '\MOM': '\mathcal{M}'
   '\PMOM': '\overline{\mathcal{M}}'
   '\pmom': 'p^{\text{mom}}'
+  '\rank': '\operatorname{rank}'
 ---
 
 ## Non-negativity and sums of squares
@@ -416,4 +417,132 @@ Since $\pmin = \psos \leq \pmom \leq \pmin$, it also shows asymptotic convergenc
 
 ## Moment matrices and optimizers
 
+The purpose of this final section is to show how to pass the data of the moment relaxation at some degree truncation to a solver.
+Afterwards, we answer an important question: how can we possibly know at which degree $d$ we can stop going up in the hierarchy?
+Under such circumstances it will also be possible to use the solver outputs to extract concrete minimizers.
 
+First, let us show that the levels of the moment hierarchy are again semidefinite programs.
+In the following proposition we may easily replace the infinite localized pseudo-moment cone by a truncation with the same result.
+
+> **Proposition**:
+> Extend the description of the semialgebraic set by the constant polynomial $g_0 = 1$ (this does not change the set as trivially $1 \geq 0$).
+> To a linear functional $L \in \R[x]^*$ and for each $j = 0, 1, \dots, m$ we associate the bilinear form
+> $$B^L_j \colon \R[x] \times \R[x] \to \R, \quad (p_1, p_2) \mapsto L(g_j p_1 p_2).$$
+> Then, a functional $L \in \R[x]^*$ is a member of the localized pseudo-moment cone if and only if all associated bilinear forms $B^L_j$ are *psd* ($j = 0, 1, \dots, m$).
+
+This is the analogon to the positive semidefinite description of the *sos* cone and of the truncated module.
+
+**Proof:**
+If $L \in \PMOM(g_1, \dots, g_m)$ then it is non-negative on the truncated module.
+In particular, it is non-negative on each polynomial of the form $g_j h^2$ (choose the zero polynomial for all other terms of a generic member of the quadratic module).
+But then $B^L_j (p, p) \geq 0$ for any polynomial $p \in \R[x]$, so $B^L_j$ is *psd*.
+Conversely, let $L \in \R[x]^*$ be a linear functional such that all bilinear forms $B^L_j$ are *psd*.
+Let $q = g_0 p_0^2 + g_1 p_1 ^2 + \dots + g_m p_m^2$ be an arbitrary element of the quadratic module.
+Thus, 
+$$L(q) = B^L_0 (p_0, p_0) + B^L_1(p_1, p_1) + \dots + B^L_m (p_m, p_m) \geq 0,$$
+so $L$ is a localized pseudo-moment functional.
+$\square$
+
+Let us now pass to the truncated case.
+Here, of course we would like to talk about concrete matrices instead of bilinear forms or functionals so that we can pass them numerically to a solver.
+We will need to choose a basis.
+For simplicity, and because it is standard we will again choose the monomial basis truncated at some degree $2d$.
+For the polynomial ring in $n$ variables $x = (x_1, \dots, x_n)$, the (unsorted) monomial basis in multi-index notation is
+$$ \set{x^\alpha}{\alpha \in \Z_{\geq 0}^n,\; |\alpha| \leq 2d}. $$
+
+Note that any functional $L \in \left(\R[x]_{2d}\right)^*$ on the truncated polynomial ring evaluated at a polynomial $h$ can be expressed as
+$$L(h) = L_y(h) = \sum_{|\alpha| \leq 2d} y_\alpha h_\alpha = y^T h, $$
+where $h_\alpha$ is the corresponding coefficient of $h$ and $y$ is now a vector of size equal to that of the basis.
+In the last expression, we simply interpret $h$ as a vector in the monomial basis as a shorthand notation.
+Thus, we will from now on speak about (pseudo-)moment vectors $y$ instead of (pseudo-)moment functionals $L$.
+
+In the literature the following notation for the matrices of bilinear forms from the last proposition is very common.
+Starting with $j = 0$, i.e. for the trivial addition $g_0 = 1$, the **moment matrix** corresponding to the bilinear form $B^L_0$ associated to $L_y$ is defined as the matrix $M_d(y)$ with entries indexed by multi-indices $|\alpha|, |\beta| \leq d$
+$$M_d(y)_{\alpha, \beta} = L_y(x^\alpha x^\beta) = y_{\alpha + \beta}.$$
+
+This might seem a bit strange at first glance; it's always good to see an example.
+Let's consider the case $n = 2$ and $d = 2$.
+Let $y$ be a moment vector with one entry for each monomial in two variables up to degree $2d = 4$.
+Then, the associated moment matrix is
+$$
+M_2(y) = \left[\begin{array}{c:cc:ccc}
+y_{00} & y_{10} & y_{01} & y_{20} & y_{11} & y_{02} \\ \hdashline
+y_{10} & y_{20} & y_{11} & y_{30} & y_{21} & y_{12} \\
+y_{01} & y_{11} & y_{02} & y_{21} & y_{12} & y_{03} \\ \hdashline
+y_{20} & y_{30} & y_{21} & y_{40} & y_{31} & y_{22} \\
+y_{11} & y_{21} & y_{12} & y_{31} & y_{22} & y_{13} \\
+y_{02} & y_{12} & y_{03} & y_{22} & y_{13} & y_{04}
+\end{array}\right].
+$$
+
+Note that you can find $M_1(y)$ for $n = 3$ as the upper left $(3 \times 3)$-submatrix.
+It's a good exercise to write out a moment matrix like this for yourself
+(e.g. try the case $n = 3$ and $d = 1$).
+
+For $j > 0$, we need to shift and add monomials according to the vector $g_j$.
+For multi-indices $|\alpha|, |\beta| \leq d$ we define the localizing (moment) matrix
+$$M_d(g_j y) = L_y (g_j x^\alpha x^\beta) = \sum_{\gamma} \left( g_j \right)_\gamma y_{\alpha + \beta + \gamma}.$$
+As an example, let us consider a centered ball constraint (those that are required by Putinar's theorem) with $n = 2$ and $d = 1$, 
+so $g_1(x) = 4 - \|x\|^2 = 2 - x_1^2 - x_2^2$.
+Under this setup the localizing matrix is
+$$
+M_1(g_1 y) = \left[\begin{array}{c:cc}
+4 y_{00} - y_{20} - y_{02}  &  4 y_{10} - y_{30} - y_{12}  &  4 y_{01} - y_{21} - y_{03} \\ \hdashline
+4 y_{10} - y_{30} - y_{12}  &  4 y_{20} - y_{40} - y_{22}  &  4 y_{11} - y_{31} - y_{13} \\
+4 y_{01} - y_{21} - y_{03}  &  4 y_{11} - y_{31} - y_{13}  &  4 y_{02} - y_{22} - y_{04} \\
+\end{array}\right].
+$$
+This is exactly the moment matrix $M_1(y)$ in which each entry is scaled and shifted by the coefficients and exponents of the constaint.
+
+In this new matrix notation we can reformulate $\pmom$ into a version that can be passed to solvers.
+Let's make this a bit more explicit than previously to figure out which degrees we really need (compare to the degree constraints on the individual terms of the quadratic module).
+Write
+$$d_0 = \left\lceil \frac{\deg g_0}{2}\right\rceil = 1, d_1 = \left\lceil \frac{\deg g_1}{2} \right\rceil, \dots, d_m = \left\lceil \frac{\deg g_m}{2} \right\rceil $$
+to denote the rounded up half-degrees of all polynomials that define the semialgebraic set $K$.
+Then, the minimum degree for a moment (or *sos*) relaxation to make sense will denoted by $d_{\text{min}} = \max\{ \lceil\deg p/2 \rceil, d_0, d_1, \dots, d_m \}.$
+Then, for any hierarchy level $d \geq d_{\text{min}}$ and letting $N = \dim \R[x]_{2d}$, we arrive at our final formulation
+$$\pmom_d = \inf\set{y^T p}{y \in \R^N, y_0 = 1, M_{d - d_j}(g_j y) \succeq 0, j = 0, \dots, m },$$
+where we used the shorthand $A \succeq 0$ for a matrix to be *psd*.
+Note that $M_{d - d_0}(g_0 y) = M_d (y)$.
+This is now precise enough to be passed to a solver.
+Check out the first part of the code for the experiment [`motzkin_moment.py`](https://github.com/lcwllmr/momsos/blob/main/code/momsos/experiments/motzkin_moment.py) to see this in action.
+
+We finish this introduction with a short discussion of the question: at which degree $d$ can I stop going up in the hierarchy? When have I reached the optimum?
+This is a very relevant question as the dimension of $\R[x]_{2d}$ (and with it the size of our moment matrices) grow rapidly leading to numerical difficulty.
+See Sections 6.6 and 6.7 in [(Laurent, 2010)](https://homepages.cwi.nl/~monique/files/moment-ima-update-new.pdf)) for a detailed discussion.
+
+Here is a first simple criterion.
+Denote by $e_1, \dots, e_n$ the multi-indices corresponding to the monomials $x_1, \dots, x_n$.
+
+> **Proposition**:
+> Let $y$ be an optimal solution for the problem $\pmom_d$.
+> Define $\overline{x} = (y_{e_1}, \dots, y_{e_n}) \in \R^n$.
+> If $\overline x \in K$ and $p(\overline x) = \pmom_d$, then $\pmin = \pmom_d$ and $\overline x$ is a minimizer to the original problem, i.e. $p(\overline x) = \pmin$.
+
+Here is some intuition for this result.
+If $y$ were given by integration w.r.t. a probability measure $\mu$, then one could think of $\mu$ as being concentrated tightly around a true minimizer (close to a Dirac at that point), so that the moments $y_{e_i} = \int x_i \, d\mu(x)$ are large only if and only if $x_i$ is close to the true $i$-th coordinate of the minimizer.
+
+**Proof**:
+Since $\overline x \in K$, we certainly have $\pmin \leq p(\overline x)$.
+But by assumption we also have $p(\overline x) = \pmom_d \leq \pmin$ since the hierarchy produces lower bounds.
+$\square$
+
+While this is generally a rare situation to be in, there are heuristic arguments to be made that this has a good chance of being true in case of a unique global minimizer to the original problem (cf. the sections of the survey mentioned above).
+There is, however, a more general theorem which includes this as a special case and has much weaker assumptions.
+Loosely speaking, one is able to extract minimizers if the sequence of ranks of the moment matrices in the hierarchy level stabilizes.
+
+> **Theorem (Rank stabilization)**:
+> Let $d_K = \max\{ d_0, \dots, d_m \}$ be the maximum rounded up half-degree of the polynomials that define $K$.
+> For $d \geq d_{\text{min}}$ let $y$ be an optimal solution to $\pmom_d$.
+> Assume that there is some $s$ with $d_{\text{min}} \leq s \leq d$ for which 
+> $$r = \rank M_{s}(y) = \rank M_{s - d_K} (y).$$
+> In this case, the associated functional $L_y$ is integration w.r.t. an $r$-*atomic* probability measure
+> $$\mu = \sum_{i=1}^r \lambda_i \delta_{x^i}, $$
+> which is convex combination of Dirac deltas.
+> Moreover, the points $x^i \in K$ are global minimizers to the *pop*, i.e. $p(x^i) = \pmin$.
+
+It is then possible to extract the minimizers by means of numerical linear algebra.
+
+These results highlight the advantages of considering both the *sos* and the moment side of the hierarchy:
+We've seen that the *sos* side gives us algebraic proofs for a given bound by producing an explicit element of the quadratic module.
+The moment side on the other hand is closer in nature to distributions on the set $K$ itself and as such might give us access to stopping criteria and concrete minimizers.
