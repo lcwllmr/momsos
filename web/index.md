@@ -528,7 +528,71 @@ But by assumption we also have $p(\overline x) = \pmom_d \leq \pmin$ since the h
 $\square$
 
 While this is generally a rare situation to be in, there are heuristic arguments to be made that this has a good chance of being true in case of a unique global minimizer to the original problem (cf. the sections of the survey mentioned above).
-There is, however, a more general theorem which includes this as a special case and has much weaker assumptions.
+We perform this test in the experiment
+[`motzkin_moment.py`](https://github.com/lcwllmr/momsos/blob/main/code/momsos/experiments/motzkin_moment.py).
+As before we attempt to minimize the Motzkin polynomial around a small ball around one of the minimal points at $(1, -1)$ with value $0$.
+At each hierarchy level we log the found lower bound and check numerically if the criteria for the last proposition are satisfied.
+Here is the result on my system:
+
+```
+$ motzkin-moment
+
+hierarchy level d = 6
+  -> solver status: optimal
+  -> pmom_6 = -1.0611336720423026e-06
+  -> xbar = [0.9300696568198683, -0.923372680505846]
+  -> constraint value g1(xbar): 0.0507619989901501 (feasible)
+  -> |p(xbar) - pmom_6| = 0.05421546272582045
+hierarchy level d = 7
+  -> solver status: optimal
+  -> pmom_7 = 1.7405777708034975e-08
+  -> xbar = [0.9193142154224452, -0.9144839411955861]
+  -> constraint value g1(xbar): 0.053823192146335685 (feasible)
+  -> |p(xbar) - pmom_7| = 0.0680625302440645
+hierarchy level d = 8
+  -> solver status: optimal
+  -> pmom_8 = 2.7041787764581215e-07
+  -> xbar = [0.9400211494212625, -0.9412264389430985]
+  -> constraint value g1(xbar): 0.04705179399605586 (feasible)
+  -> |p(xbar) - pmom_8| = 0.03677300078418422
+hierarchy level d = 9
+  -> solver status: optimal
+  -> pmom_9 = 3.097746410496427e-07
+  -> xbar = [0.9636166109044235, -0.9623476028476482]
+  -> constraint value g1(xbar): 0.04274145401339868 (feasible)
+  -> |p(xbar) - pmom_9| = 0.015074659455620143
+hierarchy level d = 10
+  -> solver status: optimal
+  -> pmom_10 = 1.2811140037705115e-07
+  -> xbar = [0.9690466266312561, -0.9692733473958901]
+  -> constraint value g1(xbar): 0.04190223850315855 (feasible)
+  -> |p(xbar) - pmom_10| = 0.010615989938524306
+hierarchy level d = 11
+  -> solver status: optimal
+  -> pmom_11 = 3.0463441458294938e-06
+  -> xbar = [0.8830502005680481, -0.8842745049144566]
+  -> constraint value g1(xbar): 0.06706964579996799 (feasible)
+  -> |p(xbar) - pmom_11| = 0.12301890909944158
+hierarchy level d = 12
+  -> solver status: optimal
+  -> pmom_12 = 8.13755707262942e-07
+  -> xbar = [0.956053920985409, -0.9587413539555535]
+  -> constraint value g1(xbar): 0.043633533734177554 (feasible)
+  -> |p(xbar) - pmom_12| = 0.019707880115166
+hierarchy level d = 13
+  -> solver status: optimal
+  -> pmom_13 = 8.671382947245121e-07
+  -> xbar = [0.97056788804639, -0.9704954375080612]
+  -> constraint value g1(xbar): 0.04173676842189067 (feasible)
+  -> |p(xbar) - pmom_13| = 0.009723313378852128
+```
+
+As it turns out, we do indeed approach the true (and unique!) minimizer but we do so very, very slowly.
+Note that although the lower bound already hits numerical precision, we cannot yet apply the result yet.
+Intuitively, increasing the hierarchy level brings the pseudo-moment vector closer to the true infinite moment vector of the optimal measure.
+As a bottom-line, we need a lot more information to produce minimizers than to get tight lower bounds.
+
+There is a more general theorem which includes this strategy as a special case and but with broader applicability.
 Loosely speaking, one is able to extract minimizers if the sequence of ranks of the moment matrices in the hierarchy level stabilizes.
 
 > **Theorem (Rank stabilization)**:
@@ -541,7 +605,7 @@ Loosely speaking, one is able to extract minimizers if the sequence of ranks of 
 > which is convex combination of Dirac deltas.
 > Moreover, the points $x^i \in K$ are global minimizers to the *pop*, i.e. $p(x^i) = \pmin$.
 
-It is then possible to extract the minimizers by means of numerical linear algebra.
+Without going into detail, it is possible to extract the minimizers from such a setting by means of numerical linear algebra.
 
 These results highlight the advantages of considering both the *sos* and the moment side of the hierarchy:
 We've seen that the *sos* side gives us algebraic proofs for a given bound by producing an explicit element of the quadratic module.
