@@ -7,10 +7,12 @@ abstract: |
   These notes are mostly based on the great survey article [(Laurent, 2010)](https://homepages.cwi.nl/~monique/files/moment-ima-update-new.pdf).
   This text and the code used to perform the experiments are hosted at [`gh:lcwllmr/momsos`](https://github.com/lcwllmr/momsos).
   Read the instructions on GitHub if you would like to experiment with the code on your own.
+  Please feel free to contact me for questions, suggestions etc. at: luca dot wellmeier at uit dot no.
   These notes have been used for the following talks:
 
   - Jan 28, 2026 at IIT Bombay (17:15 in Ramanujan Hall) covering sections 1, 2 and 3
   - Feb 4, 2026 at IIT Bombay (17:15 in Ramanujan Hall) covering sections 4 and 5
+  - Feb 25, 2026 AT IISC Bengaluru (14:00 in ECE 1.08) on sections 1 to 3
 macros:
   '\R': '\mathbb{R}'
   '\deg': '\operatorname{deg}'
@@ -280,7 +282,7 @@ Now we are ready to define the sums-of-squares hierarchy:
 $$ \psos_d = \sup \set{\lambda \in \R}{p - \lambda \in Q(g_1, \dots, g_m)_{2d}}. $$
 These define a sequence of convex, finite-dimensional optimization problems.
 As we increase the hierarchy level $d$, the search space grows and we find ourselves in a chain of inequalities
-$$ \psos_1 \leq \psos_2 \leq \psos_3 \leq \dots \leq \pmin. $$
+$$ \psos_d \leq \psos_{d + 1} \leq \pmin. $$
 
 The first immediate question is: will this converge? That is, will $\psos_d \to \pmin$ as $d \to \infty$? Lucky us again:
 
@@ -289,7 +291,7 @@ The first immediate question is: will this converge? That is, will $\psos_d \to 
 > If $p \in \NN(K)$, then $p + \varepsilon \in Q$ for all $\varepsilon > 0$.
 
 The word Positivstellensatz was chosen in analogy to the German Nullstellensatz in algebraic geometry.
-A modern, elementary proof of this theorem can be found in [(Schweighofer, 2005)](https://doi.org/10.1137/S1052623403431779).
+A constructive and elementary proof of this result can be found in [(Schweighofer, 2005)](https://doi.org/10.1137/S1052623403431779).
 
 Let us first have a look at the Archimedean condition, which is a technical assumption only and closely related to the discussion above: the quadratic module depends on the description of the set and not the set itself.
 All it says is that you need to have such a ball constraint in the module for guaranteed convergence.
@@ -302,7 +304,7 @@ For any desired sharpness, Putinar tells us that we will be able to decompose a 
 Therefore, as we go up in hierarchy level, i.e. in truncation degree, we will be able to tighten our bounds, i.e. to let $\varepsilon \to 0$, because we gradually enlarge the search space.
 This proves asymptotic convergence of the *sos* hierarchy.
 
-Since we did not really live the framework of the last section, we are again able to use semidefinite programming to solve such optimization problems.
+Since we did not leave the framework of the last section, we are again able to use semidefinite programming to solve such optimization problems.
 Let's take again the Motzkin polynomial $M(x,y)$ from the previous section and try to minimize it on a non-centered ball.
 In other words, we attempt to solve the problem
 of maximizing a scalar $\lambda$ such that the linear coefficient matching system 
@@ -315,7 +317,8 @@ Here is the result:
 
 ![](./motzkin-minimize.light.png) ![](./motzkin-minimize.dark.png)
 
-Note that this is converging to the minimum (or rather to numerical precision) very fast even though the Archimedean condition is not satisfied.
+This is converging to the minimum (or rather to numerical precision) quite fast.
+Is the Archimedean condition satisfied here?
 
 ## Duality
 
@@ -327,7 +330,7 @@ for the compact semialgebraic set $K = \{g_1 \geq 0, \dots, g_m \geq 0\}$ but we
 This will lead us naturally to the dual theory of moments.
 
 Consider the following reformulation:
-Let us denote by $\operatorname{Prop}(K)$ the convex (!) set of all probability measures supported on $K$ (all mass lies inside $K$ or equivalently the measure of $X \setminus K$ is zero for any $X \subseteq \R^n$).
+Let us denote by $\operatorname{Prob}(K)$ the convex (!) set of all probability measures supported on $K$ (all mass lies inside $K$ or equivalently the measure of $X \setminus K$ is zero for any $X \subseteq \R^n$).
 Then,
 $$\pmin = \inf_{\mu \in \operatorname{Prob}(K)} \int p(x) \, d\mu(x).$$
 At first glance, this might seem a bit strange but let us quickly verify that this is in fact true:
@@ -588,9 +591,8 @@ hierarchy level d = 13
 ```
 
 As it turns out, we do indeed approach the true (and unique!) minimizer but we do so very, very slowly.
-Note that although the lower bound already hits numerical precision, we cannot yet apply the result yet.
-Intuitively, increasing the hierarchy level brings the pseudo-moment vector closer to the true infinite moment vector of the optimal measure.
-As a bottom-line, we need a lot more information to produce minimizers than to get tight lower bounds.
+Note that although the lower bound already hits numerical precision, we cannot apply the result yet.
+Intuitively, increasing the hierarchy level brings the pseudo-moment vector closer to the true infinite moment vector of the optimal measure, but we need a lot more information to produce minimizers than to get tight lower bounds.
 
 There is a more general theorem which includes this strategy as a special case and but with broader applicability.
 Loosely speaking, one is able to extract minimizers if the sequence of ranks of the moment matrices in the hierarchy level stabilizes.
