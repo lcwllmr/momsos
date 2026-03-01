@@ -12,7 +12,7 @@ abstract: |
 
   - Jan 28, 2026 at IIT Bombay (17:15 in Ramanujan Hall) covering sections 1, 2 and 3
   - Feb 4, 2026 at IIT Bombay (17:15 in Ramanujan Hall) covering sections 4 and 5
-  - Feb 25, 2026 AT IISC Bengaluru (14:00 in ECE 1.08) on sections 1 to 3
+  - Feb 25, 2026 AT IISc Bengaluru (14:00 in ECE 1.08) on sections 1 to 3
 macros:
   '\R': '\mathbb{R}'
   '\deg': '\operatorname{deg}'
